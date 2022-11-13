@@ -14,3 +14,17 @@ Install my-project
   mv settings.env.test settings.env
   
 ```
+
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  pytest
+```
+## Swagger Document
+
+```http
+  GET /swagger/
+```
