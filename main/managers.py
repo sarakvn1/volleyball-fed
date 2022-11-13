@@ -1,4 +1,9 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.db.models import QuerySet
+# from main.models import Basket
+from django.db.models import Sum
 
 
 class UserManager(BaseUserManager):
@@ -28,3 +33,16 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self._create_user(username, password, **extra_fields)
+
+
+class BasketManager(models.Manager):
+
+    def invoice(self, user):
+        ticket = self.model._meta.get_field(
+            'ticket'
+        ).related_model._meta.model.objects.filter(
+            is_valid=False, user=user
+        )
+        price_sum = ticket.aggregate(Sum('price'))
+        ticket_id = list(ticket.values_list('id', flat=True))
+        return price_sum.get('price__sum'), ticket_id
