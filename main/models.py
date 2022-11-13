@@ -10,7 +10,7 @@ from loguru import logger
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-from main.managers import UserManager
+from main.managers import UserManager, BasketManager
 
 
 class BaseModel(models.Model):
@@ -70,15 +70,22 @@ class Match(BaseModel):
         return f"{self.id}-{self.name}"
 
 
-class Seat(models.Model):
+class Seat(BaseModel):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     row = models.PositiveIntegerField(blank=False, null=False, default=1)
     column = models.PositiveIntegerField(blank=False, null=False, default=1)
     is_occupied = models.BooleanField(default=False)
 
 
-class Ticket(models.Model):
+class Ticket(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
-    is_paid = models.BooleanField(default=False)
+    is_valid = models.BooleanField(default=False)
     price = models.PositiveIntegerField(blank=False, null=False)
+
+
+class Basket(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    is_paid = models.BooleanField(default=False)
+    objects = BasketManager()
